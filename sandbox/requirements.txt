@@ -1,3 +1,5 @@
 # Sandbox demo only. The ranking module (src/scorer.py) itself is standard-library only;
-# streamlit is needed solely to serve the interactive demo.
-streamlit==1.38.0
+# streamlit is needed solely to serve the interactive demo. Left unpinned so the host
+# resolves a build with prebuilt wheels for its Python (an old streamlit pin caps pillow<11,
+# which forces a source build of pillow that fails on hosts without zlib headers).
+streamlit
