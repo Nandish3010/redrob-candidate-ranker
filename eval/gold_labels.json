@@ -1,0 +1,177 @@
+{
+  "CAND_0005649": {
+    "tier": 5,
+    "archetype": "ranking/search/recsys engineer at product company, in band, trusted IR skills",
+    "title": "Senior Data Scientist"
+  },
+  "CAND_0006538": {
+    "tier": 5,
+    "archetype": "ranking/search/recsys engineer at product company, in band, trusted IR skills",
+    "title": "AI Specialist"
+  },
+  "CAND_0006557": {
+    "tier": 5,
+    "archetype": "ranking/search/recsys engineer at product company, in band, trusted IR skills",
+    "title": "NLP Engineer"
+  },
+  "CAND_0006567": {
+    "tier": 5,
+    "archetype": "ranking/search/recsys engineer at product company, in band, trusted IR skills",
+    "title": "Senior AI Engineer"
+  },
+  "CAND_0007412": {
+    "tier": 5,
+    "archetype": "ranking/search/recsys engineer at product company, in band, trusted IR skills",
+    "title": "Applied ML Engineer"
+  },
+  "CAND_0010257": {
+    "tier": 5,
+    "archetype": "ranking/search/recsys engineer at product company, in band, trusted IR skills",
+    "title": "Senior Data Scientist"
+  },
+  "CAND_0000981": {
+    "tier": 4,
+    "archetype": "strong AI/ML engineer at product company, in band, real IR work (not CV/forecasting)",
+    "title": "ML Engineer"
+  },
+  "CAND_0001494": {
+    "tier": 4,
+    "archetype": "strong AI/ML engineer at product company, in band, real IR work (not CV/forecasting)",
+    "title": "Data Scientist"
+  },
+  "CAND_0002037": {
+    "tier": 4,
+    "archetype": "strong AI/ML engineer at product company, in band, real IR work (not CV/forecasting)",
+    "title": "ML Engineer"
+  },
+  "CAND_0002120": {
+    "tier": 4,
+    "archetype": "strong AI/ML engineer at product company, in band, real IR work (not CV/forecasting)",
+    "title": "ML Engineer"
+  },
+  "CAND_0007411": {
+    "tier": 4,
+    "archetype": "strong AI/ML engineer at product company, in band, real IR work (not CV/forecasting)",
+    "title": "Senior Machine Learning Engineer"
+  },
+  "CAND_0008978": {
+    "tier": 4,
+    "archetype": "strong AI/ML engineer at product company, in band, real IR work (not CV/forecasting)",
+    "title": "Junior ML Engineer"
+  },
+  "CAND_0014858": {
+    "tier": 3,
+    "archetype": "relevant AI/ML + IR work but just outside the experience band",
+    "title": "AI Research Engineer"
+  },
+  "CAND_0016659": {
+    "tier": 3,
+    "archetype": "relevant AI/ML + IR work but just outside the experience band",
+    "title": "ML Engineer"
+  },
+  "CAND_0017648": {
+    "tier": 3,
+    "archetype": "relevant AI/ML + IR work but just outside the experience band",
+    "title": "AI Specialist"
+  },
+  "CAND_0021827": {
+    "tier": 3,
+    "archetype": "relevant AI/ML + IR work but just outside the experience band",
+    "title": "AI Research Engineer"
+  },
+  "CAND_0000165": {
+    "tier": 2,
+    "archetype": "ML/DS in a non-IR sub-domain (CV/forecasting) or without real IR work",
+    "title": "AI Specialist"
+  },
+  "CAND_0000200": {
+    "tier": 2,
+    "archetype": "ML/DS in a non-IR sub-domain (CV/forecasting) or without real IR work",
+    "title": "ML Engineer"
+  },
+  "CAND_0000273": {
+    "tier": 2,
+    "archetype": "ML/DS in a non-IR sub-domain (CV/forecasting) or without real IR work",
+    "title": "ML Engineer"
+  },
+  "CAND_0000666": {
+    "tier": 2,
+    "archetype": "ML/DS in a non-IR sub-domain (CV/forecasting) or without real IR work",
+    "title": "Data Scientist"
+  },
+  "CAND_0001126": {
+    "tier": 2,
+    "archetype": "ML/DS in a non-IR sub-domain (CV/forecasting) or without real IR work",
+    "title": "Junior ML Engineer"
+  },
+  "CAND_0001131": {
+    "tier": 2,
+    "archetype": "ML/DS in a non-IR sub-domain (CV/forecasting) or without real IR work",
+    "title": "ML Engineer"
+  },
+  "CAND_0000027": {
+    "tier": 1,
+    "archetype": "services-only career (consulting / IT services), no product IR work",
+    "title": "DevOps Engineer"
+  },
+  "CAND_0000032": {
+    "tier": 1,
+    "archetype": "services-only career (consulting / IT services), no product IR work",
+    "title": ".NET Developer"
+  },
+  "CAND_0000035": {
+    "tier": 1,
+    "archetype": "services-only career (consulting / IT services), no product IR work",
+    "title": "Full Stack Developer"
+  },
+  "CAND_0000082": {
+    "tier": 1,
+    "archetype": "services-only career (consulting / IT services), no product IR work",
+    "title": "Data Analyst"
+  },
+  "CAND_0000083": {
+    "tier": 1,
+    "archetype": "services-only career (consulting / IT services), no product IR work",
+    "title": "Graphic Designer"
+  },
+  "CAND_0000005": {
+    "tier": 0,
+    "archetype": "clearly non-technical role",
+    "title": "Accountant"
+  },
+  "CAND_0000008": {
+    "tier": 0,
+    "archetype": "clearly non-technical role",
+    "title": "Operations Manager"
+  },
+  "CAND_0000009": {
+    "tier": 0,
+    "archetype": "clearly non-technical role",
+    "title": "Mechanical Engineer"
+  },
+  "CAND_0000012": {
+    "tier": 0,
+    "archetype": "clearly non-technical role",
+    "title": "Operations Manager"
+  },
+  "CAND_0000016": {
+    "tier": 0,
+    "archetype": "clearly non-technical role",
+    "title": "Accountant"
+  },
+  "CAND_0000019": {
+    "tier": 0,
+    "archetype": "clearly non-technical role",
+    "title": "Project Manager"
+  },
+  "CAND_0000021": {
+    "tier": 0,
+    "archetype": "keyword stuffer (non-technical title, stuffed AI skills, no IR work)",
+    "title": "Project Manager"
+  },
+  "CAND_0000028": {
+    "tier": 0,
+    "archetype": "clearly non-technical role",
+    "title": "Operations Manager"
+  }
+}
