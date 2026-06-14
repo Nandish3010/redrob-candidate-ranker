@@ -1,0 +1,3 @@
+# Sandbox demo only. The ranking module (src/scorer.py) itself is standard-library only;
+# streamlit is needed solely to serve the interactive demo.
+streamlit==1.38.0

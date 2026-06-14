@@ -6,4 +6,9 @@
 # rank_bm25==0.2.2           # BM25 index for hybrid retrieval
 # pandas==2.2.2              # convenience for eval/ and analysis
 # sentence-transformers==2.7.0   # ONLY if Phase 2 uses bge-small/e5-small instead of TF-IDF
-# streamlit==1.35.0          # sandbox app
+
+# ---- Sandbox demo only (sandbox/app.py) ----
+# rank.py imports none of this. Listed here so Streamlit Community Cloud (which installs
+# from the repo-root requirements.txt) can serve the hosted demo. Stage-3 reproduction of
+# the ranking step does not import streamlit.
+streamlit==1.38.0
