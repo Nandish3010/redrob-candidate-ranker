@@ -10,5 +10,6 @@
 # ---- Sandbox demo only (sandbox/app.py) ----
 # rank.py imports none of this. Listed here so Streamlit Community Cloud (which installs
 # from the repo-root requirements.txt) can serve the hosted demo. Stage-3 reproduction of
-# the ranking step does not import streamlit.
-streamlit==1.38.0
+# the ranking step does not import streamlit. Left UNPINNED so the host resolves a streamlit
+# build compatible with its Python; the app uses only basic, stable Streamlit APIs.
+streamlit
