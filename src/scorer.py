@@ -321,6 +321,16 @@ def score_candidate(cand: dict) -> dict:
     cur_ind = _industry_score(profile.get("current_industry", ""))
     hist_ind = max([_industry_score(r.get("industry", "")) for r in career], default=0.0)
     product_company = max(cur_ind, 0.8 * hist_ind)
+    # Label the industry that actually EARNED the product signal, so reasoning never prints a
+    # contradiction like "product-company background (IT Services)" (IT Services scores 0.0).
+    if cur_ind >= 0.8:
+        product_industry_label = profile.get("current_industry", "")
+    elif hist_ind >= 1.0:
+        product_industry_label = next(
+            (r.get("industry", "") for r in career if _industry_score(r.get("industry", "")) >= 1.0),
+            "")
+    else:
+        product_industry_label = ""
 
     # Require actual ranking/search/recommendation WORK, not just an ML title + skill list.
     # A ranking/search/recsys job TITLE, or role DESCRIPTIONS that describe that work, count.
@@ -402,13 +412,18 @@ def score_candidate(cand: dict) -> dict:
 
     behavioral = _behavioral_multiplier(sig)
     hp_mult = _honeypot_multiplier(cand)
-    final = max(0.0, min(1.0, relevance_core * behavioral)) * hp_mult
+    # No upper clip. relevance_core is in [0, 1] and behavioral is in [0.55, 1.05], so an ideal,
+    # immediately-available top candidate can edge just above 1.0. Clipping to 1.0 (the old v0
+    # behavior) flattened the very strongest profiles into ties, which is exactly what NDCG@10
+    # penalizes; the validator imposes no [0, 1] bound, only non-increasing scores. Keep the
+    # lower clamp so a score is never negative.
+    final = max(0.0, relevance_core * behavioral) * hp_mult
 
     rr_val = sig.get("recruiter_response_rate")
     rctx = {
         "title": profile.get("current_title", "Candidate"),
         "yoe": yoe,
-        "industry": profile.get("current_industry", ""),
+        "industry": product_industry_label,
         "top_skills": top_skills,
         "n_trusted": len(skill_credits),
         "rr": None if rr_val is None else float(rr_val),
