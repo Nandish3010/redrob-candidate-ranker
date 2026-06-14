@@ -41,6 +41,13 @@ EVAL_TERMS = ("ndcg", "mrr", "mean average precision", "map@", "recall@", "a/b t
 IR_DESC_TERMS = ("ranking", "retrieval", "recommend", "search", "embedding", "vector",
                  "relevance", "semantic", "personaliz", "information retrieval",
                  "learning to rank", "ndcg")
+# The JD explicitly does NOT want candidates "whose primary expertise is computer vision, speech".
+# These detect a CV/speech-dominated career; used ONLY to down-weight profiles that show zero
+# retrieval/ranking work (so a genuine IR engineer who merely mentions an image is never touched).
+CV_SPEECH_TERMS = ("computer vision", "image classification", "object detection", "segmentation",
+                   "ocr", "facial recognition", "face recognition", "speech recognition",
+                   "speech to text", " asr ", "image processing", "video analysis",
+                   "pose estimation", "image generation", "medical imaging")
 
 # --- Title taxonomy ---
 STRONG_TITLE_TERMS = ("machine learning", "ml engineer", "ai engineer", "applied scientist",
@@ -348,6 +355,16 @@ def score_candidate(cand: dict) -> dict:
     )
     ir_work_evidence = max(ranking_title, min(1.0, ir_roles / 2.0))
     career_evidence = 0.36 * title_match + 0.20 * product_company + 0.44 * ir_work_evidence
+
+    # CV/speech-PRIMARY down-weight (JD explicit negative). Fires ONLY when computer-vision/speech
+    # terms appear repeatedly AND the candidate shows zero retrieval/ranking work (ir_work_evidence
+    # == 0). A real IR engineer always has ir_work_evidence > 0, so this can never demote them.
+    cv_blob = all_titles + " " + " ".join(norm(r.get("description", "")) for r in career) + \
+        " " + norm(profile.get("headline", ""))
+    cv_hits = sum(cv_blob.count(t) for t in CV_SPEECH_TERMS)
+    cv_speech_primary = cv_hits >= 2 and ir_work_evidence == 0.0
+    if cv_speech_primary:
+        career_evidence *= 0.6  # demote a CV/speech specialist with no ranking/retrieval work
 
     # --- skill_trust (coupled to career_evidence to collapse keyword stuffers) ---
     coupling = min(1.0, 0.4 + career_evidence)
