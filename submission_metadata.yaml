@@ -1,18 +1,17 @@
 # Redrob Hackathon submission metadata. Mirror of the portal fields.
 # Fill every PLACEHOLDER before submitting. Stage 3 verifies this against your portal entry.
 
-team_name: "PLACEHOLDER-team-name"
+team_name: "Shortlist"
 
 primary_contact:
-  name: "PLACEHOLDER Full Name"
+  name: "Nandish S"
   email: "nandishlovespets@supertails.com"   # confirm this is the contact email you want used
-  phone: "+91-PLACEHOLDER"
+  phone: "+91-PLACEHOLDER"                    # fill before submitting
 
 team_members:
-  - name: "PLACEHOLDER Full Name"
+  - name: "Nandish S"
     email: "nandishlovespets@supertails.com"
-    role: "Team Lead"
-  # add more members if any
+    role: "Team Lead"   # solo team
 
 # ----- Code and reproducibility -----
 github_repo: "https://github.com/Nandish3010/redrob-candidate-ranker"
