@@ -13,7 +13,9 @@ hallucinate and is always rank-consistent. CPU only, standard library only, no n
 
 from __future__ import annotations
 
+import json
 import math
+import os
 import re
 from datetime import date
 
@@ -69,13 +71,102 @@ INDIA_TIER1_CITIES = ("bangalore", "bengaluru", "hyderabad", "mumbai", "delhi", 
 PROFICIENCY_BASE = {"beginner": 0.25, "intermediate": 0.5, "advanced": 0.8, "expert": 1.0}
 EDU_TIER_SCORE = {"tier_1": 1.0, "tier_2": 0.7, "tier_3": 0.4, "tier_4": 0.2, "unknown": 0.3}
 
-# relevance_core weights (sum to 1.0). jd_similarity (0.12) folded into career in v0.
-W_CAREER = 0.42
+# relevance_core weights (sum to 1.0). The career/similarity split depends on whether the
+# Phase-2 similarity model is loaded:
+#   - model present  -> career 0.30 + jd_similarity 0.12  (hybrid; the documented target)
+#   - model absent    -> career 0.42, jd_similarity 0.00   (v0 spine; weight folded into career)
+# The other five weights are identical in both modes, so relevance_core always sums to 1.0.
+W_CAREER_HYBRID = 0.30
+W_CAREER_SPINE = 0.42
+W_SIM = 0.12
 W_SKILL = 0.18
 W_EXP = 0.12
 W_PYEVAL = 0.12
 W_LOC = 0.12
 W_EDU = 0.04
+
+# --- Phase 2: capped TF-IDF JD-similarity term (stdlib only, no model download) ---------------
+# A small "model" (IDF table + four L2-normalized JD seed vectors + a data-derived calibration
+# anchor) is precomputed offline by build_artifacts.py and committed to artifacts/sim_model.json.
+# This is aggregate term statistics plus hand-authored JD vectors, NOT candidate data. The same
+# file is loaded by rank.py (the timed step) and the sandbox, so the semantic layer can never
+# drift between them. If the file is absent, the scorer transparently falls back to the v0 spine.
+_SIM_MODEL = None          # {"idf": {term: idf}, "seeds": [{term: weight}, ...], "anchor": float}
+_SIM_MODEL_TRIED = False
+_STOPWORDS = {
+    "the", "a", "an", "and", "or", "of", "to", "in", "for", "on", "with", "at", "by", "from",
+    "as", "is", "are", "was", "were", "be", "been", "being", "this", "that", "it", "its", "our",
+    "we", "i", "you", "they", "their", "his", "her", "he", "she", "them", "us", "my", "me",
+    "also", "into", "over", "across", "using", "used", "use", "via", "per", "such", "which",
+    "who", "whom", "where", "when", "while", "than", "then", "there", "here", "but", "not", "no",
+    "yes", "can", "will", "would", "should", "could", "may", "might", "have", "has", "had", "do",
+    "does", "did", "done", "etc", "team", "work", "working", "worked", "various", "including",
+}
+
+
+def _tokens(text: str) -> list:
+    """Unigrams + adjacent bigrams over normalized text, with light stopword removal.
+    Bigrams capture JD phrases ('learning rank', 'vector search') that unigrams lose."""
+    words = [w for w in norm(text).split() if len(w) > 1 and w not in _STOPWORDS]
+    toks = list(words)
+    toks += [f"{words[i]} {words[i + 1]}" for i in range(len(words) - 1)]
+    return toks
+
+
+def _candidate_doc(cand: dict) -> str:
+    """Semantic surface for similarity. Deliberately EXCLUDES the raw skills array so that
+    stuffing the skills list cannot move the similarity term (CONTEXT.md Section 6)."""
+    profile = cand.get("profile", {}) or {}
+    career = cand.get("career_history", []) or []
+    parts = [profile.get("current_title", ""), profile.get("headline", ""),
+             profile.get("summary", ""), profile.get("current_industry", "")]
+    for r in career:
+        parts.append(r.get("title", ""))
+        parts.append(r.get("description", ""))
+    return " ".join(p for p in parts if p)
+
+
+def load_sim_model(path: str = None):
+    """Load the Phase-2 similarity model once. Returns the model dict or None if unavailable.
+    Default path is artifacts/sim_model.json at the repo root (one level up from src/)."""
+    global _SIM_MODEL, _SIM_MODEL_TRIED
+    if _SIM_MODEL_TRIED and path is None:
+        return _SIM_MODEL
+    if path is None:
+        root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        path = os.path.join(root, "artifacts", "sim_model.json")
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            m = json.load(f)
+        if m.get("idf") and m.get("seeds") and m.get("anchor"):
+            _SIM_MODEL = m
+    except Exception:
+        _SIM_MODEL = None
+    _SIM_MODEL_TRIED = True
+    return _SIM_MODEL
+
+
+def _jd_similarity(cand: dict, model: dict) -> float:
+    """Cosine of the candidate's TF-IDF document vector against the closest JD seed vector,
+    rescaled to [0, 1] by the model's data-derived anchor (a high pool percentile of the same
+    cosine). Capped at 1.0. Out-of-vocabulary terms are dropped (standard TF-IDF pruning)."""
+    idf = model["idf"]
+    tf = {}
+    for t in _tokens(_candidate_doc(cand)):
+        if t in idf:
+            tf[t] = tf.get(t, 0) + 1
+    if not tf:
+        return 0.0
+    vec = {t: (1.0 + math.log(c)) * idf[t] for t, c in tf.items()}
+    nrm = math.sqrt(sum(v * v for v in vec.values()))
+    if nrm == 0.0:
+        return 0.0
+    best = 0.0
+    for seed in model["seeds"]:  # seed vectors are stored already L2-normalized
+        dot = sum(w * seed.get(t, 0.0) for t, w in vec.items())
+        if dot > best:
+            best = dot
+    return max(0.0, min(1.0, (best / nrm) / model["anchor"]))
 
 
 def norm(s) -> str:
@@ -293,8 +384,21 @@ def score_candidate(cand: dict) -> dict:
     best_edu = max([EDU_TIER_SCORE.get(e.get("tier"), 0.3) for e in cand.get("education", []) or []],
                    default=0.3)
 
-    relevance_core = (W_CAREER * career_evidence + W_SKILL * skill_trust + W_EXP * experience_band
-                      + W_PYEVAL * python_eval + W_LOC * location + W_EDU * best_edu)
+    # --- jd_similarity (Phase 2, capped) ---
+    # Active only when the precomputed similarity model is loaded. The 0.12 weight is taken from
+    # career_evidence (0.42 -> 0.30) so the total is unchanged and the term can never by itself
+    # resurrect a keyword stuffer (its surface excludes the raw skills array).
+    model = load_sim_model()
+    if model is not None:
+        jd_similarity = _jd_similarity(cand, model)
+        w_career, sim_term = W_CAREER_HYBRID, W_SIM * jd_similarity
+    else:
+        jd_similarity = 0.0
+        w_career, sim_term = W_CAREER_SPINE, 0.0
+
+    relevance_core = (w_career * career_evidence + sim_term + W_SKILL * skill_trust
+                      + W_EXP * experience_band + W_PYEVAL * python_eval + W_LOC * location
+                      + W_EDU * best_edu)
 
     behavioral = _behavioral_multiplier(sig)
     hp_mult = _honeypot_multiplier(cand)
@@ -316,6 +420,7 @@ def score_candidate(cand: dict) -> dict:
         "open_to_work": bool(sig.get("open_to_work_flag")),
         "product": product_company >= 0.8,
         "honeypot": hp_mult < 0.3,
+        "jd_similarity": round(jd_similarity, 3),
     }
     return {"candidate_id": cand.get("candidate_id"), "score": round(final, 6), "rctx": rctx}
 
@@ -354,6 +459,8 @@ def make_reasoning(rctx: dict) -> str:
         positives.append("responsive to recruiters")
     if rctx["open_to_work"]:
         positives.append("open to work")
+    if rctx.get("jd_similarity", 0.0) >= 0.7:
+        positives.append("strong semantic match to the JD")
 
     if concerns:
         tail = "Concerns: " + ", ".join(concerns) + "."
