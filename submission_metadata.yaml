@@ -16,7 +16,7 @@ team_members:
 # ----- Code and reproducibility -----
 github_repo: "https://github.com/Nandish3010/redrob-candidate-ranker"
 sandbox_link: "https://redrob-candidate-ranker-ns.streamlit.app/"
-reproduce_command: "python rank.py --candidates ./data/candidates.jsonl --out ./outputs/submission.csv"
+reproduce_command: "python rank.py --candidates ./data/candidates.jsonl --out ./outputs/Shortlist.csv"
 
 # ----- Compute environment (must match what you actually ran) -----
 compute:
@@ -57,4 +57,4 @@ declarations:
   code_is_original_work: true
   no_collusion: true
   honeypot_check_done: true
-  reproduction_tested: false   # set true after testing the reproduce command on a clean checkout
+  reproduction_tested: true   # verified on a clean `git archive HEAD` checkout: byte-identical CSV
