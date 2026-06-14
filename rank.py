@@ -47,19 +47,32 @@ def main():
     scored = []          # (score, candidate_id)
     rctx_by_id = {}      # candidate_id -> compact reasoning context
     n = 0
+    skipped = 0          # rows we could not parse or score (never abort the whole run for one bad row)
     with open_candidates(args.candidates) as f:
-        for line in f:
+        for line_no, line in enumerate(f, start=1):
             line = line.strip()
             if not line:
                 continue
-            cand = json.loads(line)
-            r = score_candidate(cand)
-            cid = r["candidate_id"]
-            scored.append((r["score"], cid))
-            rctx_by_id[cid] = r["rctx"]
-            n += 1
+            # Defensive: a single off-schema or unparseable row must not abort a 100k-row run
+            # (Stage-3 grades on a file we have never seen). Skip it and keep going.
+            try:
+                cand = json.loads(line)
+                r = score_candidate(cand)
+                cid = r["candidate_id"]
+                if not cid:
+                    raise ValueError("missing candidate_id")
+                scored.append((r["score"], cid))
+                rctx_by_id[cid] = r["rctx"]
+                n += 1
+            except Exception as e:
+                skipped += 1
+                if skipped <= 10:
+                    print(f"  WARNING: skipped line {line_no}: {type(e).__name__}: {e}", file=sys.stderr)
+                continue
             if n % 20000 == 0:
                 print(f"  scored {n} candidates ({time.time() - t0:.1f}s)", file=sys.stderr)
+    if skipped:
+        print(f"  Skipped {skipped} unparseable/invalid row(s) total.", file=sys.stderr)
 
     # Sort best-first; equal scores -> candidate_id ascending (validator tie-break rule).
     scored.sort(key=lambda x: (-x[0], x[1]))
