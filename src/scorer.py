@@ -300,7 +300,12 @@ def _behavioral_multiplier(sig: dict) -> float:
     else:
         nf = 0.93
 
-    return max(0.55, min(1.05, resp * rec * otw * icr_f * nf))
+    # Availability is a SECONDARY signal: it should separate near-equal candidates ("behavioral
+    # twins") and reward active, responsive profiles, but must not override a genuine relevance
+    # gap. So we clip to a tight band [0.85, 1.05] (a +/- ~15% nudge) rather than the original
+    # 0.55-1.05 (a 1.9x swing that could sink a strong-fit but less-active candidate below a
+    # weak-fit but very-active one). The gold set showed exactly that inversion before this change.
+    return max(0.85, min(1.05, resp * rec * otw * icr_f * nf))
 
 
 def score_candidate(cand: dict) -> dict:
@@ -437,7 +442,17 @@ def score_candidate(cand: dict) -> dict:
         "honeypot": hp_mult < 0.3,
         "jd_similarity": round(jd_similarity, 3),
     }
-    return {"candidate_id": cand.get("candidate_id"), "score": round(final, 6), "rctx": rctx}
+    components = {
+        "career_evidence": round(career_evidence, 4), "jd_similarity": round(jd_similarity, 4),
+        "skill_trust": round(skill_trust, 4), "experience_band": round(experience_band, 4),
+        "python_eval": round(python_eval, 4), "location": round(location, 4),
+        "education": round(best_edu, 4), "relevance_core": round(relevance_core, 4),
+        "behavioral": round(behavioral, 4), "honeypot_mult": round(hp_mult, 4),
+        "title_match": round(title_match, 4), "ir_work_evidence": round(ir_work_evidence, 4),
+        "product_company": round(product_company, 4),
+    }
+    return {"candidate_id": cand.get("candidate_id"), "score": round(final, 6),
+            "rctx": rctx, "components": components}
 
 
 def make_reasoning(rctx: dict) -> str:
