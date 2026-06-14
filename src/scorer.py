@@ -455,48 +455,69 @@ def score_candidate(cand: dict) -> dict:
             "rctx": rctx, "components": components}
 
 
+def _join_natural(items: list) -> str:
+    """['a','b','c'] -> 'a, b and c'; ['a','b'] -> 'a and b'; ['a'] -> 'a'."""
+    if not items:
+        return ""
+    if len(items) == 1:
+        return items[0]
+    return ", ".join(items[:-1]) + " and " + items[-1]
+
+
 def make_reasoning(rctx: dict) -> str:
-    """Build a 1-2 sentence, fact-grounded, rank-consistent reasoning string from rctx.
-    Every clause cites a real field; clause selection varies by which facts are present."""
+    """Build a fluent, fact-grounded, rank-consistent reasoning string from rctx. Every clause
+    cites a real field, and clause selection varies by which facts are present, so the text reads
+    naturally without being a name-insertion template and can never hallucinate."""
     yoe = rctx["yoe"]
     sk = rctx["top_skills"]
-    skill_phrase = f" ({', '.join(sk)})" if sk else ""
-    primary = f"{rctx['title']} with {yoe:.1f} yrs; {rctx['n_trusted']} trusted AI/IR skills{skill_phrase}"
-    if rctx["product"] and rctx["industry"]:
-        primary += f"; product-company background ({rctx['industry']})"
 
+    # Sentence 1: who they are.
+    primary = f"{rctx['title']} with {yoe:.1f} years"
+    if rctx["n_trusted"]:
+        primary += f" and {rctx['n_trusted']} trusted AI/IR skills"
+        if sk:
+            primary += f" ({', '.join(sk)})"
+    else:
+        primary += " and no endorsed AI/IR skills yet"
+    if rctx["product"] and rctx["industry"]:
+        primary += f", backed by a product-company background in {rctx['industry']}"
+    primary += "."
+
+    # Honest concerns (each gated by a real threshold).
     concerns = []
     rr = rctx["rr"]
     if rr is not None and rr < 0.2:
-        concerns.append(f"low recruiter response {rr:.2f}")
+        concerns.append(f"a low recruiter-response rate ({rr:.2f})")
     if rctx["months_inactive"] >= 5:
-        concerns.append(f"inactive ~{rctx['months_inactive']:.0f} mo")
+        concerns.append(f"inactive for about {rctx['months_inactive']:.0f} months")
     if not rctx["is_india"] and not rctx["willing"]:
-        concerns.append("onsite-only abroad")
+        concerns.append("based outside India with no relocation flag")
     if rctx["notice"] and rctx["notice"] > 90:
-        concerns.append(f"{rctx['notice']}d notice")
+        concerns.append(f"a {rctx['notice']}-day notice period")
 
+    # Positive availability/fit signals.
     positives = []
     if rctx["is_pref"]:
-        positives.append("Pune/Noida-based")
+        positives.append("based in Pune or Noida")
     elif rctx["is_india"]:
         positives.append("India-based")
     elif rctx["willing"]:
-        positives.append("willing to relocate")
+        positives.append("open to relocating")
     if rctx["months_inactive"] <= 1:
-        positives.append("active this month")
+        positives.append("active within the last month")
     if rr is not None and rr >= 0.6:
         positives.append("responsive to recruiters")
     if rctx["open_to_work"]:
         positives.append("open to work")
     if rctx.get("jd_similarity", 0.0) >= 0.7:
-        positives.append("strong semantic match to the JD")
+        positives.append("a strong semantic match to the JD")
 
+    # Sentence 2: lead with concerns when present (honesty first), else the positives.
     if concerns:
-        tail = "Concerns: " + ", ".join(concerns) + "."
+        tail = "Worth noting: " + _join_natural(concerns) + "."
     elif positives:
-        joined = ", ".join(positives)
-        tail = joined[:1].upper() + joined[1:] + "."  # capitalize first char only
+        joined = _join_natural(positives)
+        tail = joined[:1].upper() + joined[1:] + "."
     else:
-        tail = "Available, moderate engagement signals."
-    return f"{primary}. {tail}"
+        tail = "Available, with moderate engagement signals."
+    return f"{primary} {tail}"
