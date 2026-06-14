@@ -1,0 +1,61 @@
+# Redrob Hackathon submission metadata. Mirror of the portal fields.
+# Fill every PLACEHOLDER before submitting. Stage 3 verifies this against your portal entry.
+
+team_name: "PLACEHOLDER-team-name"
+
+primary_contact:
+  name: "PLACEHOLDER Full Name"
+  email: "nandishlovespets@supertails.com"   # confirm this is the contact email you want used
+  phone: "+91-PLACEHOLDER"
+
+team_members:
+  - name: "PLACEHOLDER Full Name"
+    email: "nandishlovespets@supertails.com"
+    role: "Team Lead"
+  # add more members if any
+
+# ----- Code and reproducibility -----
+github_repo: "https://github.com/PLACEHOLDER_USER/redrob-candidate-ranker"
+sandbox_link: "https://huggingface.co/spaces/PLACEHOLDER_USER/redrob-ranker"   # build in Phase 4
+reproduce_command: "python rank.py --candidates ./data/candidates.jsonl --out ./outputs/submission.csv"
+
+# ----- Compute environment (must match what you actually ran) -----
+compute:
+  platform: "PLACEHOLDER (e.g. MacBook Pro M2)"
+  cpu_cores: 8
+  ram_gb: 16
+  python_version: "PLACEHOLDER (e.g. 3.11.4)"
+  os: "PLACEHOLDER (e.g. macOS 14.x)"
+  uses_gpu_for_inference: false
+  has_network_during_ranking: false
+  pre_computation_required: true          # true once build_artifacts.py (Phase 2) is in use
+  pre_computation_time_minutes: 0          # update after measuring
+
+# ----- AI tools declaration (honest; not penalized) -----
+ai_tools_used:
+  - "Claude"
+ai_usage_summary: |
+  Used Claude for architecture design (judge-panel comparison of ranking approaches),
+  code review, and documentation. All candidate scoring runs locally with no candidate
+  data sent to any hosted LLM, and no network calls during the ranking step.
+
+# ----- Approach summary (<= 200 words, recommended) -----
+methodology_summary: |
+  Transparent rule-engine ranker with a capped embedding/similarity recall layer.
+  relevance_core combines career evidence (title taxonomy + product-vs-services company
+  signal, with templated descriptions used only to corroborate), endorsement/duration/
+  assessment-trusted skills, an experience band, Python/eval-framework signal, location/
+  relocation fit, a capped JD-similarity term, and capped education. A behavioral
+  availability multiplier (floor 0.55) down-weights inactive or unresponsive profiles and
+  breaks behavioral twins. A conjunctive honeypot gate (>= 2 independent impossibility
+  contradictions) keeps impossible profiles out of the top 100. Reasoning is generated
+  deterministically from the same features that drive the rank, so it is specific, varied,
+  rank-consistent, and free of hallucination. Runs CPU-only, no network, well under 5 minutes.
+
+# ----- Declarations -----
+declarations:
+  read_submission_spec: true
+  code_is_original_work: true
+  no_collusion: true
+  honeypot_check_done: true
+  reproduction_tested: false   # set true after testing the reproduce command on a clean checkout

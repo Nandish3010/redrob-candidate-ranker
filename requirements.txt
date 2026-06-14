@@ -1,0 +1,9 @@
+# v0 baseline (rank.py + src/scorer.py) uses ONLY the Python standard library.
+# Pin exact versions once Phase 2 lands. Suggested Phase 2 deps (uncomment when used):
+#
+# numpy==1.26.4
+# scikit-learn==1.4.2        # TF-IDF + TruncatedSVD for the similarity layer
+# rank_bm25==0.2.2           # BM25 index for hybrid retrieval
+# pandas==2.2.2              # convenience for eval/ and analysis
+# sentence-transformers==2.7.0   # ONLY if Phase 2 uses bge-small/e5-small instead of TF-IDF
+# streamlit==1.35.0          # sandbox app
