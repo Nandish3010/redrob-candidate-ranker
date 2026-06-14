@@ -120,7 +120,7 @@ set_points(guidance_shape(S[3]), [
     ("Score.", "relevance_core is a weighted sum of named signals: career evidence 0.30, semantic "
            "JD-similarity 0.12, trusted skills 0.18, experience band 0.12, Python and evaluation "
            "experience 0.12, location 0.12, and education 0.04."),
-    ("Adjust.", "We multiply by a behavioral-availability factor (0.55 to 1.05) from recency, recruiter "
+    ("Adjust.", "We multiply by a behavioral-availability factor (0.85 to 1.05) from recency, recruiter "
            "response, notice period and open-to-work status, and by a honeypot factor that pushes "
            "internally impossible profiles down."),
     ("Rank.", "We sort by the final score and break ties deterministically by candidate_id, then take "

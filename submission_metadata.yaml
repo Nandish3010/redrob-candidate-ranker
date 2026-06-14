@@ -45,7 +45,7 @@ methodology_summary: |
   signal, with templated descriptions used only to corroborate), endorsement/duration/
   assessment-trusted skills, an experience band, Python/eval-framework signal, location/
   relocation fit, a capped JD-similarity term, and capped education. A behavioral
-  availability multiplier (floor 0.55) down-weights inactive or unresponsive profiles and
+  availability multiplier (clipped to 0.85-1.05) down-weights inactive or unresponsive profiles and
   breaks behavioral twins. A conjunctive honeypot gate (>= 2 independent impossibility
   contradictions) keeps impossible profiles out of the top 100. Reasoning is generated
   deterministically from the same features that drive the rank, so it is specific, varied,
