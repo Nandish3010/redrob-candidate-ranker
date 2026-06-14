@@ -15,7 +15,7 @@ team_members:
   # add more members if any
 
 # ----- Code and reproducibility -----
-github_repo: "https://github.com/PLACEHOLDER_USER/redrob-candidate-ranker"
+github_repo: "https://github.com/Nandish3010/redrob-candidate-ranker"
 sandbox_link: "https://huggingface.co/spaces/PLACEHOLDER_USER/redrob-ranker"   # build in Phase 4
 reproduce_command: "python rank.py --candidates ./data/candidates.jsonl --out ./outputs/submission.csv"
 
