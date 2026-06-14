@@ -16,7 +16,7 @@ team_members:
 
 # ----- Code and reproducibility -----
 github_repo: "https://github.com/Nandish3010/redrob-candidate-ranker"
-sandbox_link: "https://huggingface.co/spaces/PLACEHOLDER_USER/redrob-ranker"   # build in Phase 4
+sandbox_link: "https://redrob-candidate-ranker-ns.streamlit.app/"
 reproduce_command: "python rank.py --candidates ./data/candidates.jsonl --out ./outputs/submission.csv"
 
 # ----- Compute environment (must match what you actually ran) -----
