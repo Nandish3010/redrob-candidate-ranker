@@ -20,15 +20,15 @@ reproduce_command: "python rank.py --candidates ./data/candidates.jsonl --out ./
 
 # ----- Compute environment (must match what you actually ran) -----
 compute:
-  platform: "PLACEHOLDER (e.g. MacBook Pro M2)"
-  cpu_cores: 8
+  platform: "Apple Silicon Mac (10-core CPU)"
+  cpu_cores: 10
   ram_gb: 16
-  python_version: "PLACEHOLDER (e.g. 3.11.4)"
-  os: "PLACEHOLDER (e.g. macOS 14.x)"
+  python_version: "3.9.6"
+  os: "macOS 26.5.1"
   uses_gpu_for_inference: false
   has_network_during_ranking: false
-  pre_computation_required: true          # true once build_artifacts.py (Phase 2) is in use
-  pre_computation_time_minutes: 0          # update after measuring
+  pre_computation_required: true          # build_artifacts.py builds the 152 KB similarity model
+  pre_computation_time_minutes: 1          # ~17s to build artifacts/sim_model.json on 100k
 
 # ----- AI tools declaration (honest; not penalized) -----
 ai_tools_used:
